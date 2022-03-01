@@ -97,6 +97,43 @@ export const AuthProvider = ({ children }) => {
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
+  const authenticateAdmin = useCallback(
+    async (payload) => {
+      setLoading(true);
+
+      try {
+        const { data: res } = await api.post('/admin/login', {
+          email: payload.email,
+          password: payload.password,
+        });
+
+        if (res.success) {
+          const today = new Date();
+          const nextTenYear = new Date();
+          nextTenYear.setFullYear(today.getFullYear() + 10);
+
+          setCookie('access_token', res.token, {
+            expires: nextTenYear,
+            path: '/',
+          });
+
+          const from = location.state?.from?.pathname || '/';
+          setTimeout(() => {
+            navigate(from, { replace: true });
+            mutate('/profile');
+          }, 500);
+        } else {
+          toast('error', res.message);
+        }
+      } catch (error) {
+        toast('error', error.toString());
+      } finally {
+        setLoading(false);
+      }
+    },
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   const logout = useCallback(() => {
     removeCookie('access_token');
     navigate('/login', { replace: true });
@@ -109,6 +146,7 @@ export const AuthProvider = ({ children }) => {
         user: user?.data,
         register,
         authenticate,
+        authenticateAdmin,
         loading,
         logout,
       }}

@@ -10,10 +10,10 @@ const { Text, Title, Link: AntLink } = Typography;
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const { authenticate, loading } = useAuth();
+  const { authenticateAdmin, loading } = useAuth();
 
   const onFinish = (values) => {
-    authenticate(values);
+    authenticateAdmin(values);
   };
 
   return (
